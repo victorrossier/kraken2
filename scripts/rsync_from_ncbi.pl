@@ -107,16 +107,27 @@ if ($use_ftp) {
         $try++;
         last if $ftp->get($_);
         warn "$PROG: unable to download $_ on try $try of $ntries: ".$ftp->message()."\n";
-        last if $try == $ntries;
+        if ($try == $ntries){
+        	delete $manifest{$_};
+        	print STDERR "$PROG: skiping non-existent file $_ from ftp://${SERVER}${SERVER_PATH}/$_\n" if $try == $ntries;
+        	last;
+        }
         sleep $sleepsecs;
         $sleepsecs *= 3;
     }
-    die "$PROG: unable to download ftp://${SERVER}${SERVER_PATH}/$_\n" if $try == $ntries;
-    $ftp->quit;
+	$ftp->quit;
   }
+  
+  # Perform the same trick suggested by Anthony Vincent
+  # Rewrite manifest as seen in the condition at lane 57:  if ($is_protein && ! $use_ftp) {
+  open MANIFEST, ">", "manifest.txt"
+  or die "$PROG: can't write manifest: $!\n";
+  print MANIFEST "$_\n" for keys %manifest;
   close MANIFEST;
+  
   chdir ".." or die "$PROG: can't return to correct directory: $!\n";
 }
+
 else {
 
 
