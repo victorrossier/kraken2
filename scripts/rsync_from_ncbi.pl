@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# Copyright 2013-2023, Derrick Wood <dwood@cs.jhu.edu>
+# Copyright 2013-2021, Derrick Wood <dwood@cs.jhu.edu>
 #
 # This file is part of the Kraken 2 taxonomic sequence classification system.
 
@@ -43,7 +43,7 @@ while (<>) {
   my $full_path = $ftp_path . "/" . basename($ftp_path) . $suffix;
   # strip off server/leading dir name to allow --files-from= to work w/ rsync
   # also allows filenames to just start with "all/", which is nice
-  if (! ($full_path =~ s#^(?:ftp|https)://${qm_server}${qm_server_path}/##)) {
+  if (! ($full_path =~ s#^ftp://${qm_server}${qm_server_path}/##)) {
     die "$PROG: unexpected FTP path (new server?) for $ftp_path\n";
   }
   $manifest{$full_path} = $taxid;
@@ -118,6 +118,27 @@ if ($use_ftp) {
   chdir ".." or die "$PROG: can't return to correct directory: $!\n";
 }
 else {
+
+
+  system("rsync --dry-run --no-motd --files-from=manifest.txt rsync://${SERVER}${SERVER_PATH} . 2> rsync.err");
+  open ERR_FILE, "<", "rsync.err"
+    or die "$PROG: can't read rsync.err file: $!\n";
+  while (<ERR_FILE>) {
+    chomp;
+    # I really doubt this will work across every version of rsync. :(
+    if (/failed: No such file or directory/ && /^rsync: link_stat "\/([^"]+)"/) {
+      delete $manifest{$1};
+    }
+  }
+  close ERR_FILE;
+  print STDERR "Rsync dry run complete, removing any non-existent files from manifest.\n";
+
+  # Rewrite manifest
+  open MANIFEST, ">", "manifest.txt"
+    or die "$PROG: can't write manifest: $!\n";
+  print MANIFEST "$_\n" for keys %manifest;
+  close MANIFEST;
+
   print STDERR "Step 1/2: Performing rsync file transfer of requested files\n";
   system("rsync --no-motd --files-from=manifest.txt rsync://${SERVER}${SERVER_PATH}/ .") == 0
     or die "$PROG: rsync error, exiting: $?\n";
@@ -132,7 +153,7 @@ my $sequences_added = 0;
 my $ch_added = 0;
 my $ch = $is_protein ? "aa" : "bp";
 my $max_out_chars = 0;
-for my $in_filename (sort keys %manifest) {
+for my $in_filename (keys %manifest) {
   my $taxid = $manifest{$in_filename};
   if ($use_ftp) {  # FTP downloading doesn't create full path locally
     $in_filename = "all/" . basename($in_filename);
