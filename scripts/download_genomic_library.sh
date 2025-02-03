@@ -9,8 +9,6 @@
 #   in easily obtaining a good collection of genomic data.  Others may
 #   be added upon popular demand.
 
-print 'download_genomic_library has started';
-
 set -u  # Protect against uninitialized vars.
 set -e  # Stop on error
 
