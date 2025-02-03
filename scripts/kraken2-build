@@ -5,7 +5,7 @@
 # This file is part of the Kraken 2 taxonomic sequence classification system.
 
 # General build process wrapper for Kraken 2.
-print 'running my custom kraken2-build'
+print 'running my custom kraken2-build';
 
 use strict;
 use warnings;
