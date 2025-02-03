@@ -13,7 +13,8 @@ set -e  # Stop on error
 TAXONOMY_DIR="$KRAKEN2_DB_NAME/taxonomy"
 NCBI_SERVER="ftp.ncbi.nlm.nih.gov"
 RSYNC_SERVER="rsync://$NCBI_SERVER"
-FTP_SERVER="ftp://$NCBI_SERVER"
+# FTP_SERVER="ftp://$NCBI_SERVER"
+FTP_SERVER="https://$NCBI_SERVER"
 
 mkdir -p "$TAXONOMY_DIR"
 cd "$TAXONOMY_DIR"
@@ -23,6 +24,7 @@ function download_file() {
   if [ -n "$KRAKEN2_USE_FTP" ]
   then
     wget ${FTP_SERVER}${file} --no-check-certificate
+    # wget -q ${FTP_SERVER}${file}
   else
     rsync --no-motd ${RSYNC_SERVER}${file} .
   fi
