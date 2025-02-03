@@ -25,7 +25,7 @@ if [ -n "$KRAKEN2_PROTEIN_DB" ]; then
   library_file="library.faa"
 fi
 
-print "download_genomic_library.sh has started"
+print "download_genomic_library.sh has started";
 
 function download_file() {
   file="$1"
