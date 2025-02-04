@@ -14,7 +14,8 @@ set -e  # Stop on error
 
 LIBRARY_DIR="$KRAKEN2_DB_NAME/library"
 NCBI_SERVER="ftp.ncbi.nlm.nih.gov"
-FTP_SERVER="ftp://$NCBI_SERVER"
+# FTP_SERVER="ftp://$NCBI_SERVER"
+FTP_SERVER="https://$NCBI_SERVER"
 RSYNC_SERVER="rsync://$NCBI_SERVER"
 THIS_DIR=$PWD
 
@@ -30,6 +31,7 @@ function download_file() {
   if [ -n "$KRAKEN2_USE_FTP" ]
   then
     wget ${FTP_SERVER}${file} --no-check-certificate
+    # wget -q ${FTP_SERVER}${file}
   else
     rsync --no-motd ${RSYNC_SERVER}${file} .
   fi
