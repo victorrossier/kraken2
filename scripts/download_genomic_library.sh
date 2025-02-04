@@ -28,13 +28,13 @@ fi
 
 function download_file() {
   file="$1"
-  if [ -n "$KRAKEN2_USE_FTP" ]
-  then
-    wget ${FTP_SERVER}${file} --no-check-certificate
-    # wget -q ${FTP_SERVER}${file}
-  else
-    rsync --no-motd ${RSYNC_SERVER}${file} .
-  fi
+  #if [ -n "$KRAKEN2_USE_FTP" ]
+  #then
+  wget ${FTP_SERVER}${file} --no-check-certificate
+  # wget -q ${FTP_SERVER}${file}
+  #else
+  #rsync --no-motd ${RSYNC_SERVER}${file} .
+  #fi
 }
 
 case $library_name in
